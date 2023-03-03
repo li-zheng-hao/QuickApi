@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using QuickApi.HttpResponse;
 
 namespace QuickApi.WebapiSample.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[IgnoreResponseWrapper]
 public class WeatherForecastController : ControllerBase
 {
     private static readonly string[] Summaries = new[]
@@ -17,15 +19,21 @@ public class WeatherForecastController : ControllerBase
     {
         _logger = logger;
     }
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    [HttpGet(Name = "get1")]
+    public string Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+        return "123";
+    }
+    
+    [HttpGet("get2")]
+    public Task<string> Get2()
+    {
+        return Task.FromResult("123");
+    }
+    [HttpGet("get3")]
+    public async Task<string> Get3()
+    {
+        await Task.Yield();
+        return "123";
     }
 }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using QuickApi.Internal;
 
 namespace QuickApi.HttpResponse
 {
@@ -26,7 +27,7 @@ namespace QuickApi.HttpResponse
         public void OnActionExecuted(ActionExecutedContext context)
         {
             var attributes = context.ActionDescriptor.EndpointMetadata.OfType<IgnoreResponseWrapperAttribute>();
-            if (attributes.Any())
+            if (attributes.Any()||ReflectionHelper.TypeHasAttribute(context.Controller.GetType(),typeof(IgnoreResponseWrapperAttribute)))
                 return;
             if (context.Exception is BusinessException businessExp)
             {
