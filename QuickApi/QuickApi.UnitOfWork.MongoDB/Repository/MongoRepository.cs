@@ -11,14 +11,13 @@ namespace QuickApi.UnitOfWork.MongoDB.Repository;
 public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDocument:ModelBase
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly IMongoUnitOfWork _uow;
-    private Transaction? Transaction { get; }
+    private readonly MongoDBUnitOfWork _uow;
     
     public MongoRepository(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        _uow=serviceProvider.GetService<IMongoUnitOfWork>();
-        Transaction=_uow.Transaction;
+        _uow=serviceProvider.GetService<IUnitOfWork>() as MongoDBUnitOfWork;
+
     }
 
     public IMongoRepository<T> ChangeRepository<T>() where T : ModelBase
@@ -31,18 +30,18 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
         
         long count = 0;
         var collection = DB.Collection<TDocument>();
-        if (filter != null&&Transaction!=null)
+        if (filter != null&&_uow.Transaction!=null)
         {
-            count=await DB.Collection<TDocument>().CountDocumentsAsync(Transaction?.Session,filter);
+            count=await DB.Collection<TDocument>().CountDocumentsAsync(_uow.Transaction?.Session,filter);
         }
-        else if (Transaction == null&&filter!=null)
+        else if (_uow.Transaction == null&&filter!=null)
         {
             count=await DB.Collection<TDocument>().CountDocumentsAsync(filter);
 
         }
-        else if(filter==null&&Transaction!=null)
+        else if(filter==null&&_uow.Transaction!=null)
         {
-            count=await DB.Collection<TDocument>().CountDocumentsAsync(Transaction?.Session,it=>true);
+            count=await DB.Collection<TDocument>().CountDocumentsAsync(_uow.Transaction?.Session,it=>true);
         }
         else
         {
@@ -54,29 +53,29 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
 
     public async Task<List<TDocument>> GetByIdsAsync(IEnumerable<string> ids)
     {
-        return await DB.Find<TDocument>(Transaction?.Session).Match(filter => filter.In(
+        return await DB.Find<TDocument>(_uow.Transaction?.Session).Match(filter => filter.In(
             it=>it.ID,ids)).ExecuteAsync();
     }
 
     public Task<List<T>> GetByIdsAsync<T>(IEnumerable<string> ids)
     {
-        return  DB.Find<TDocument,T>(Transaction?.Session).Match(filter => filter.In(
+        return  DB.Find<TDocument,T>(_uow.Transaction?.Session).Match(filter => filter.In(
             it=>it.ID,ids)).ExecuteAsync();
     }
 
     public async Task<TDocument> GetByIdAsync(string id)
     {
-        return await DB.Find<TDocument>(Transaction?.Session).OneAsync(id);
+        return await DB.Find<TDocument>(_uow.Transaction?.Session).OneAsync(id);
     }
 
     public Task<T> GetByIdAsync<T>(string id)
     {
-        return DB.Find<TDocument,T>(Transaction?.Session).OneAsync(id);
+        return DB.Find<TDocument,T>(_uow.Transaction?.Session).OneAsync(id);
     }
 
     public async Task<TDocument> GetFirstAsync(Expression<Func<TDocument, bool>>? filter = null, Expression<Func<TDocument, object>>? orderBy = null, Order? orderType = null)
     {
-        var pipeline=DB.Find<TDocument>(Transaction?.Session);
+        var pipeline=DB.Find<TDocument>(_uow.Transaction?.Session);
         if(filter!=null)
         {
             pipeline.Match(filter);
@@ -88,7 +87,7 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
 
     public async Task<PageList<TDocument>> GetPaginatedAsync(Expression<Func<TDocument, bool>>? filter, int pageNumber = 1, int pageSize = 50,Action<AggregateOptions>? option=null)
     {
-        var pipeline=DB.PagedSearch<TDocument>(Transaction?.Session);
+        var pipeline=DB.PagedSearch<TDocument>(_uow.Transaction?.Session);
         if(filter!=null)
             pipeline.Match(filter);
         if (option != null)
@@ -103,7 +102,7 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
 
     public async Task<PageList<T>> GetPaginatedAsync<T>(Expression<Func<TDocument, bool>> filter, int pageNumber = 1, int pageSize = 50)
     {
-        var pipeline= DB.PagedSearch<TDocument,T>(Transaction?.Session);
+        var pipeline= DB.PagedSearch<TDocument,T>(_uow.Transaction?.Session);
         if(filter!=null)
             pipeline.Match(filter);
         pipeline.Sort(it => it.ID, Order.Ascending);
@@ -115,7 +114,7 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
         , Expression<Func<TDocument, object>>? orderBy, Order orderType, int pageNumber = 1,
         int pageSize = 50,Action<AggregateOptions>? option=null)
     {
-        var pipeline= DB.PagedSearch<TDocument>(Transaction?.Session).Match(filter);
+        var pipeline= DB.PagedSearch<TDocument>(_uow.Transaction?.Session).Match(filter);
         if (orderBy == null)
         {
             pipeline.Sort(it => it.ID, Order.Ascending);
@@ -136,7 +135,7 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
     public async Task<PageList<T>> GetPaginatedAsync<T>(Expression<Func<TDocument, bool>> filter, Expression<Func<TDocument, object>>? orderBy=null, Order orderType = Order.Descending,
         int pageNumber = 1, int pageSize = 50, Action<AggregateOptions>? option = null)
     {
-        var pipeline= DB.PagedSearch<TDocument,T>(Transaction?.Session).Match(filter);
+        var pipeline= DB.PagedSearch<TDocument,T>(_uow.Transaction?.Session).Match(filter);
         if (orderBy == null)
         {
             pipeline.Sort(it => it.ID, Order.Ascending);
@@ -157,7 +156,7 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
     public async Task<PageList<TDocument>> GetPaginatedAsync(FilterDefinition<TDocument> filter,Expression<Func<TDocument,object>>? orderBy=null,Order orderType=Order.Descending, int pageNumber = 1,
         int pageSize = 50,Action<AggregateOptions>? option=null)
     {
-        var pipeline= DB.PagedSearch<TDocument>(Transaction?.Session).Match(filter);
+        var pipeline= DB.PagedSearch<TDocument>(_uow.Transaction?.Session).Match(filter);
         if (orderBy == null)
         {
             pipeline.Sort(it => it.ID, Order.Ascending);
@@ -178,7 +177,7 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
     public async Task<PageList<T>> GetPaginatedAsync<T>(FilterDefinition<TDocument> filter, Expression<Func<TDocument, object>>? orderBy = null, Order orderType = Order.Descending,
         int pageNumber = 1, int pageSize = 50, Action<AggregateOptions>? option = null)
     {
-        var pipeline= DB.PagedSearch<TDocument,T>(Transaction?.Session).Match(filter);
+        var pipeline= DB.PagedSearch<TDocument,T>(_uow.Transaction?.Session).Match(filter);
         if (orderBy == null)
         {
             pipeline.Sort(it => it.ID, Order.Ascending);
@@ -198,7 +197,7 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
 
     public async Task<List<TDocument>> QueryAsync(Expression<Func<TDocument, bool>> filter)
     {
-        var res=await DB.Find<TDocument>(Transaction?.Session).Match(filter).ExecuteAsync();
+        var res=await DB.Find<TDocument>(_uow.Transaction?.Session).Match(filter).ExecuteAsync();
         return res;
     }
 
@@ -226,13 +225,13 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
 
     public async Task<bool> UpdateOnlyAsync(Expression<Func<TDocument, object>> members, TDocument entity)
     {
-        var res=await DB.Update<TDocument>(Transaction?.Session).MatchID(entity.ID).ModifyOnly(members,entity).ExecuteAsync();
+        var res=await DB.Update<TDocument>(_uow.Transaction?.Session).MatchID(entity.ID).ModifyOnly(members,entity).ExecuteAsync();
         return res.MatchedCount>0;
     }
 
     public async Task<bool> UpdateOnlyAsync(Expression<Func<TDocument, object>> members, List<TDocument> entities)
     {
-        var res=await DB.SaveOnlyAsync(entities, members, Transaction?.Session);
+        var res=await DB.SaveOnlyAsync(entities, members, _uow.Transaction?.Session);
         return res.MatchedCount > 0;
     }
 
@@ -240,19 +239,19 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
     public async Task<bool> UpdateOneAsync(TDocument modifiedDocument)
     {
         // var res=await DB.Find<TDocument>().Match(it=>it.ID==modifiedDocument.ID).ExecuteAsync();
-        var res=await DB.Replace<TDocument>(Transaction?.Session).MatchID(modifiedDocument.ID).WithEntity(modifiedDocument).ExecuteAsync();
+        var res=await DB.Replace<TDocument>(_uow.Transaction?.Session).MatchID(modifiedDocument.ID).WithEntity(modifiedDocument).ExecuteAsync();
         return res.MatchedCount>0;
     }
 
     public async Task<bool> UpdateOneAsync(string id, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> operation)
     {
-        var res = await DB.Update<TDocument>(Transaction?.Session).MatchID(id).Modify(operation).ExecuteAsync();
+        var res = await DB.Update<TDocument>(_uow.Transaction?.Session).MatchID(id).Modify(operation).ExecuteAsync();
         return res.MatchedCount>0;
     }
 
     public async Task<bool> UpdateOneAsync(TDocument documentToModify, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> operation)
     {
-        var res = await DB.Update<TDocument>(Transaction?.Session).MatchID(documentToModify.ID).Modify(operation).ExecuteAsync();
+        var res = await DB.Update<TDocument>(_uow.Transaction?.Session).MatchID(documentToModify.ID).Modify(operation).ExecuteAsync();
         return res.MatchedCount>0;
     }
 
@@ -266,33 +265,33 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
 
     public async Task<bool> UpdateManyAsync(FilterDefinition<TDocument> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> operation)
     {
-        var res = await DB.Update<TDocument>(Transaction?.Session).Match(filter).Modify(operation).ExecuteAsync();
+        var res = await DB.Update<TDocument>(_uow.Transaction?.Session).Match(filter).Modify(operation).ExecuteAsync();
         return res.MatchedCount>0;
     }
 
     public async Task<bool> UpdateManyAsync(Expression<Func<TDocument, bool>> filter, Func<UpdateDefinitionBuilder<TDocument>, UpdateDefinition<TDocument>> operation)
     {
-        var res = await DB.Update<TDocument>(Transaction?.Session).Match(filter).Modify(operation).ExecuteAsync();
+        var res = await DB.Update<TDocument>(_uow.Transaction?.Session).Match(filter).Modify(operation).ExecuteAsync();
         return res.MatchedCount>0;
     }
 
     public async Task<bool> UpdateManyAsync(Expression<Func<TDocument, bool>> filter, UpdateDefinition<TDocument> updateDefinition)
     {
         
-        var res = await DB.Update<TDocument>(Transaction?.Session).Match(filter).Modify(it=>updateDefinition).ExecuteAsync();
+        var res = await DB.Update<TDocument>(_uow.Transaction?.Session).Match(filter).Modify(it=>updateDefinition).ExecuteAsync();
         return res.MatchedCount>0;
     }
 
 
     public async Task<bool> DeleteAsync(FilterDefinition<TDocument> filter)
     {
-        var res = await DB.DeleteAsync<TDocument>(filter,Transaction?.Session);
+        var res = await DB.DeleteAsync<TDocument>(filter,_uow.Transaction?.Session);
         return res.DeletedCount > 0;
     }
 
     public async Task<bool> DeleteAsync(Expression<Func<TDocument, bool>> filter)
     {
-        var res = await DB.DeleteAsync<TDocument>(filter,Transaction?.Session);
+        var res = await DB.DeleteAsync<TDocument>(filter,_uow.Transaction?.Session);
         return res.DeletedCount > 0;
     }
 
@@ -304,18 +303,18 @@ public class MongoRepository<TDocument> :IMongoRepository<TDocument>  where TDoc
 
     public async Task<bool> DeleteByIdAsync(string Id)
     {
-        var res = await DB.DeleteAsync<TDocument>(Id,Transaction?.Session);
+        var res = await DB.DeleteAsync<TDocument>(Id,_uow.Transaction?.Session);
         return res.DeletedCount > 0;
     }
 
     public async Task AddOneAsync(TDocument document, CancellationToken cancellationToken = default)
     {
-        await DB.SaveAsync<TDocument>(document,Transaction?.Session);
+        await DB.SaveAsync<TDocument>(document,_uow.Transaction?.Session);
     }
 
     public async  Task AddManyAsync(IEnumerable<TDocument> documents, CancellationToken cancellationToken = default)
     {
-        await DB.SaveAsync<TDocument>(documents,Transaction?.Session);
+        await DB.SaveAsync<TDocument>(documents,_uow.Transaction?.Session);
 
     }
 }

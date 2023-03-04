@@ -12,7 +12,9 @@
 // 在任何情况下，作者或版权持有人都不对任何索赔、损害或其他责任负责，无论这些追责来自合同、侵权或其它行为中，
 // 还是产生于、源于或有关于本软件以及本软件的使用或其它处置。
 
+using System;
 using System.Threading.Tasks;
+using DotNetCore.CAP;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace QuickApi.UnitOfWork
@@ -22,7 +24,10 @@ namespace QuickApi.UnitOfWork
     /// </summary>
     public interface IUnitOfWork
     {
+        public ICapTransaction? CapTransaction { get; }
         public UnitOfWorkStatus UnitOfWorkStatus { get; set; }
+        
+        public Guid UnitOfWorkId { get; set; }
         /// <summary>
         /// 开启工作单元处理
         /// </summary>

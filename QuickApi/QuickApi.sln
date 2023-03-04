@@ -8,17 +8,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{9CD2CA52-8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{97624987-56A6-4ACF-9926-CA6B59FF49DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.WebapiSample", "QuickApi.WebapiSample\QuickApi.WebapiSample.csproj", "{32A44DB4-E731-42CF-A2E7-1639A806BC57}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.WebapiSample.MongoDB", "QuickApi.WebapiSample.MongoDB\QuickApi.WebapiSample.MongoDB.csproj", "{32A44DB4-E731-42CF-A2E7-1639A806BC57}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.UnitOfWork.MongoDB", "QuickApi.UnitOfWork.MongoDB\QuickApi.UnitOfWork.MongoDB.csproj", "{75B8DA5B-28BB-4036-8E8B-04772A1BB39A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.UnitOfWork.EfCore", "QuickApi.UnitOfWork.EfCore\QuickApi.UnitOfWork.EfCore.csproj", "{04B8122B-C902-420D-A99D-A8F293D6EF17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.UnitOfWork.SqlSugar", "QuickApi.UnitOfWork.SqlSugar\QuickApi.UnitOfWork.SqlSugar.csproj", "{E3CDC44A-B2A5-4430-8B78-5C83797EEC1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.UnitOfWork.SqlSugar.Mysql", "QuickApi.UnitOfWork.SqlSugar.Mysql\QuickApi.UnitOfWork.SqlSugar.Mysql.csproj", "{E3CDC44A-B2A5-4430-8B78-5C83797EEC1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.UnitTest", "QuickApi.UnitTest\QuickApi.UnitTest.csproj", "{DF3B6BA7-9036-4A18-8318-01BFC5C487F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.IntegrationTest", "QuickApi.IntegrationTest\QuickApi.IntegrationTest.csproj", "{C2861115-9171-4B74-B277-72DE8933E117}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickApi.WebapiSample.Sqlsugar.Mysql", "QuickApi.WebapiSample.Sqlsugar.Mysql\QuickApi.WebapiSample.Sqlsugar.Mysql.csproj", "{99E363DE-DFAC-4FA0-A103-FE759285FA25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +56,10 @@ Global
 		{C2861115-9171-4B74-B277-72DE8933E117}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2861115-9171-4B74-B277-72DE8933E117}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2861115-9171-4B74-B277-72DE8933E117}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99E363DE-DFAC-4FA0-A103-FE759285FA25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99E363DE-DFAC-4FA0-A103-FE759285FA25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99E363DE-DFAC-4FA0-A103-FE759285FA25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99E363DE-DFAC-4FA0-A103-FE759285FA25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{10DBA8AA-95B3-4FDB-B54C-9FEEE0FC29CB} = {60356BFA-3476-4D2F-AE1D-A243819FB1E9}
@@ -63,5 +69,6 @@ Global
 		{E3CDC44A-B2A5-4430-8B78-5C83797EEC1B} = {60356BFA-3476-4D2F-AE1D-A243819FB1E9}
 		{DF3B6BA7-9036-4A18-8318-01BFC5C487F3} = {9CD2CA52-8D9E-4137-A90C-3BC0992F8F3B}
 		{C2861115-9171-4B74-B277-72DE8933E117} = {9CD2CA52-8D9E-4137-A90C-3BC0992F8F3B}
+		{99E363DE-DFAC-4FA0-A103-FE759285FA25} = {97624987-56A6-4ACF-9926-CA6B59FF49DF}
 	EndGlobalSection
 EndGlobal

@@ -16,6 +16,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
+using DotNetCore.CAP;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +27,10 @@ namespace QuickApi.UnitOfWork
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class UnitOfWorkAttribute : Attribute, IAsyncActionFilter, IOrderedFilter
     {
-
+        /// <summary>
+        /// 是否和CAP一起开启事务
+        /// </summary>
+        public bool WithCap { get; set; }
         /// <summary>
         /// 事务隔离级别 仅限于关系型数据库
         /// </summary>
@@ -60,57 +64,34 @@ namespace QuickApi.UnitOfWork
             var actionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
             var method = actionDescriptor.MethodInfo;
 
-            // 创建分布式环境事务
-            (var transactionScope, var logger) = CreateTransactionScope(context);
-
+            var logger = context.HttpContext.RequestServices.GetService<ILogger<UnitOfWorkAttribute>>();
             try
             {
                 // 开始事务
                 (var _unitOfWork,var unitOfWorkAttribute)= await BeginTransactionAsync(context, method);
+                
+                // 在内部上下文内AsyncLocal会进行一个浅层复制,因此这里需要在最外层进行重新赋值
+                if (unitOfWorkAttribute.WithCap)
+                {
+                    var publisher = context.HttpContext.RequestServices.GetService<ICapPublisher>();
+                    publisher.Transaction.Value = _unitOfWork.CapTransaction;
+                }
 
+                
                 // 获取执行 Action 结果
                 var resultContext = await next();
 
                 // 提交事务
                 await CommitTransactionAsync(context, _unitOfWork, unitOfWorkAttribute, resultContext);
-
-                // 提交分布式环境事务
-                if (resultContext.Exception == null)
-                {
-                    transactionScope?.Complete();
-                }
-                else
-                {
-                    logger.LogError(resultContext.Exception, "Transaction Failed.");
-                }
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Transaction Failed.");
-
                 throw;
             }
-            finally
-            {
-                transactionScope?.Dispose();
-            }
+          
         }
 
-        /// <summary>
-        /// 创建事务
-        /// </summary>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        private (TransactionScope, ILogger<UnitOfWorkAttribute>) CreateTransactionScope(FilterContext context)
-        {
-            // 是否启用分布式环境事务
-            var transactionScope = new TransactionScope();
-
-            // 创建日志记录器
-            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<UnitOfWorkAttribute>>();
-
-            return (transactionScope, logger);
-        }
 
         /// <summary>
         /// 开始事务

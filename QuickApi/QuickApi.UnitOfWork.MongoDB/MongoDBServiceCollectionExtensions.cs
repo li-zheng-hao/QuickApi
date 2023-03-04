@@ -22,7 +22,6 @@ public static class MongoDBServiceCollectionExtensions
     {
         DB.InitAsync(database,settings);
         services.AddScoped<IUnitOfWork, MongoDBUnitOfWork>();
-        services.AddScoped<IMongoUnitOfWork, MongoDBUnitOfWork>();
         services.AddScoped(typeof(IMongoRepository<>),typeof( MongoRepository<>));
         return services;
     }
@@ -37,7 +36,7 @@ public static class MongoDBServiceCollectionExtensions
         DB.InitAsync(database,host,port);
         services.AddScoped<IUnitOfWork, MongoDBUnitOfWork>();
         services.AddScoped<IMongoUnitOfWork, MongoDBUnitOfWork>();
-        services.AddScoped(typeof(IMongoRepository<>),typeof( MongoRepository<>));
+        services.AddScoped(typeof(IMongoRepository<>),typeof(MongoRepository<>));
         return services;
     }
 }
