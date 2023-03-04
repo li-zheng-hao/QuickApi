@@ -1,6 +1,10 @@
+using System.Security.Claims;
 using DotNetCore.CAP;
+using IdentityModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuickApi.HttpResponse;
+using QuickApi.JwtAuthorization;
 using QuickApi.UnitOfWork;
 using QuickApi.UnitOfWork.MongoDB.Repository;
 using QuickApi.WebapiSample.Model;
@@ -20,26 +24,36 @@ public class WeatherForecastController : ControllerBase
     private readonly ILogger<WeatherForecastController> _logger;
     private readonly ICapPublisher _capPublisher;
     private readonly IMongoRepository<MongoModel> _mongoRepository;
+    private readonly JwtTokenManager _tokenManager;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger,ICapPublisher capPublisher,IMongoRepository<MongoModel> mongoRepository)
+    public WeatherForecastController(ILogger<WeatherForecastController> logger,ICapPublisher capPublisher,IMongoRepository<MongoModel> mongoRepository,JwtTokenManager tokenManager)
     {
+        _tokenManager = tokenManager;
         _mongoRepository = mongoRepository;
         _capPublisher = capPublisher;
         _logger = logger;
     }
-    [HttpGet(Name = "get1")]
-    public string Get()
+
+    [HttpGet("login")]
+    public string Login()
     {
-        return "123";
+        var token = _tokenManager.CreateToken(new List<Claim>()
+        {
+            new Claim(JwtClaimTypes.Role,"admin"),
+            new Claim(JwtClaimTypes.Name,"testname")
+        });
+        _logger.LogInformation(token);
+        return token;
     }
-    
-    [HttpGet("get2")]
-    public Task<string> Get2()
+    [HttpGet("authorize"),Authorize(Roles = "admin")]
+    public Task<string> Authorize()
     {
+        var user=User.IsInRole("admin");
         return Task.FromResult("123");
     }
-    [HttpGet("get3"),UnitOfWork(WithCap = true)]
-    public async Task<string> Get3()
+    
+    [HttpGet("unitofwork"),UnitOfWork(WithCap = true)]
+    public async Task<string> UnitOfWork()
     {
         await _capPublisher.PublishAsync<string>("hello","hello");
         await _mongoRepository.AddOneAsync(new MongoModel() { UserName = "hello" });
