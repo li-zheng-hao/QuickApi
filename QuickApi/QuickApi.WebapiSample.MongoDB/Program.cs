@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Driver;
 using QuickApi.HttpResponse;
+using QuickApi.JsonSerialization;
 using QuickApi.JwtAuthorization;
 using Savorboard.CAP.InMemoryMessageQueue;
 using SqlSugar;
@@ -19,7 +20,7 @@ builder.Services.AddMvc(action =>
 {
     action.Filters.Add<ResponseResultWrapperFilter>();
     
-});
+}).AddCustomJsonSerialization();
 
 builder.Services.AddJwtAuth(builder.Configuration);
 
@@ -35,6 +36,7 @@ builder.Services.AddCap(x =>
 builder.Services.AddAuthentication();
 builder.Services.AddMongoDB("QuickApi", MongoClientSettings.FromConnectionString(
     "mongodb://root:chaojiyonghu@localhost:30000"));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

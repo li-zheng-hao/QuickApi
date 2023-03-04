@@ -33,7 +33,13 @@ public class WeatherForecastController : ControllerBase
         _capPublisher = capPublisher;
         _logger = logger;
     }
-
+    
+    
+    [HttpGet("JsonSerialize")]
+    public dynamic JsonSerialize()
+    {
+        return new { UserName = 1, Password = 2,age=1,Time=DateTime.Now};
+    } 
     [HttpGet("login")]
     public string Login()
     {
