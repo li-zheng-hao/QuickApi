@@ -2,9 +2,10 @@
 using DotNetCore.CAP;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using QuickApi.UnitOfWork;
 using SqlSugar;
 
-namespace QuickApi.UnitOfWork.SqlSugar;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// SqlSugar 工作单元实现

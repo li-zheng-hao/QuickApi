@@ -6,8 +6,9 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Converters;
+using QuickApi.JsonSerialization;
 
-namespace QuickApi.JsonSerialization;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public class CustomJsonSerializationOption
 {

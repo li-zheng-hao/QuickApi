@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using QuickApi.JwtAuthorization;
 using JwtConstants = Microsoft.IdentityModel.JsonWebTokens.JwtConstants;
 
-namespace QuickApi.JwtAuthorization;
+namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// <see cref="https://github.com/xiaoxiaotank/XXTk.Auth.Samples"/>
 /// </summary>

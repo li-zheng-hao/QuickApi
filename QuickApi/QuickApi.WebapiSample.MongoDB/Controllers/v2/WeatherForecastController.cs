@@ -9,9 +9,10 @@ using QuickApi.UnitOfWork;
 using QuickApi.UnitOfWork.MongoDB.Repository;
 using QuickApi.WebapiSample.Model;
 
-namespace QuickApi.WebapiSample.Controllers;
+namespace QuickApi.WebapiSample.Controllers.V2;
 
 [ApiController]
+[ApiVersion("2.0")]
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
@@ -33,6 +34,16 @@ public class WeatherForecastController : ControllerBase
         _capPublisher = capPublisher;
         _logger = logger;
     }
+    /// <summary>
+    /// Api版本
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("apiversion")]
+    public string ApiVersion1()
+    {
+        return "2.0";
+    }
+  
     /// <summary>
     /// 忽略返回值包装
     /// </summary>

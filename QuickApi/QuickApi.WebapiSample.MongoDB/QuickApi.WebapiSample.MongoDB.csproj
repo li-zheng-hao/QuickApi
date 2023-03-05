@@ -7,6 +7,10 @@
         <RootNamespace>QuickApi.WebapiSample</RootNamespace>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\QuickApi.WebapiSample.MongoDB.xml</DocumentationFile>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Savorboard.CAP.InMemoryMessageQueue" Version="7.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />

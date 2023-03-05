@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Driver;
@@ -6,6 +7,8 @@ using QuickApi.DataValidation;
 using QuickApi.HttpResponse;
 using QuickApi.JsonSerialization;
 using QuickApi.JwtAuthorization;
+using QuickApi.SwaggerConfig;
+using QuickApi.WebapiSample;
 using Savorboard.CAP.InMemoryMessageQueue;
 using SqlSugar;
 
@@ -16,7 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddCustomSwaggerGen();
+
 builder.Services.AddMvc(action =>
 {
     action.Filters.Add<ResponseResultWrapperFilter>();
@@ -35,17 +40,20 @@ builder.Services.AddCap(x =>
     });
     x.UseInMemoryMessageQueue();
 });
+
 builder.Services.AddAuthentication();
+
 builder.Services.AddMongoDB("QuickApi", MongoClientSettings.FromConnectionString(
     "mongodb://root:chaojiyonghu@localhost:30000"));
+
+builder.Services.AddCustomApiVersion();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseCustomSwaggerUI();
 }
 app.UseAuthentication();
 
