@@ -1,3 +1,4 @@
+using System.Net;
 using System.Security.Claims;
 using DotNetCore.CAP;
 using IdentityModel;
@@ -70,14 +71,40 @@ public class WeatherForecastController : ControllerBase
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost("login")]
-    public string Login([FromBody]LoginDto dto)
+    public AuthTokenDto Login([FromBody]LoginDto dto)
     {
+        // 登录从数据库验证账号密码...
+        var claims = new List<Claim>()
+        {
+            new(JwtClaimTypes.Role, "admin"), // 数据库获取
+            new(JwtClaimTypes.Name, dto.UserName),
+            new(JwtClaimTypes.Id, "123456") // 数据库获取
+        };
+        var accessToken = _tokenManager.CreateToken(claims);
+        var refreshToken = _tokenManager.CreateToken(claims,true);
+        return new AuthTokenDto()
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
+        };
+    }
+
+    [HttpPost("refreshtoken"),AllowAnonymous]
+    public string RefreshToken(string refreshToken)
+    {
+        var claims = _tokenManager.ResolveToken(refreshToken);
+        if (claims is null)
+            throw new BusinessException("refresh_token无效", 401, HttpStatusCode.Unauthorized);
+        // 登录逻辑....
+        var userId=claims.FirstOrDefault(it => it.Type == JwtClaimTypes.Id);
+        if(userId is null)
+            throw new BusinessException("refresh_token无效", 401, HttpStatusCode.Unauthorized);
         var token = _tokenManager.CreateToken(new List<Claim>()
         {
             new Claim(JwtClaimTypes.Role, "admin"),
-            new Claim(JwtClaimTypes.Name, "testname")
+            new Claim(JwtClaimTypes.Name, "testname"),
+            new Claim(JwtClaimTypes.Id, "123456")
         });
-        _logger.LogInformation(token);
         return token;
     }
     /// <summary>
