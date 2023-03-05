@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace QuickApi
 {
     [Serializable]
-    public class PageList<T> : List<T>
+    public class PageList<T>
     {
+        public List<T> Items { get; set; } = new();
         /// <summary>
         ///     构造函数
         /// </summary>
@@ -23,7 +26,7 @@ namespace QuickApi
 
             PageSize = pageSize;
             PageIndex = pageIndex;
-            AddRange(source);
+            Items.AddRange(source);
         }
 
         /// <summary>
@@ -39,11 +42,13 @@ namespace QuickApi
         /// <summary>
         ///     总记录数
         /// </summary>
+        [JsonInclude]
         public int TotalCount { get; }
 
         /// <summary>
         ///     总页数
         /// </summary>
+        [JsonInclude]
         public int TotalPages { get; }
 
         /// <summary>
@@ -56,14 +61,5 @@ namespace QuickApi
         /// </summary>
         public bool HasNextPage => PageIndex + 1 < TotalPages;
 
-        // public PageList<T1> Adapt<T1>()
-        // {
-        //     List<T1> res = new List<T1>();
-        //     foreach (var item in this)
-        //     {
-        //         res.Add(item.Adapt<T1>());
-        //     }
-        //     return new PageList<T1>(res,this.PageIndex,this.PageSize,this.TotalCount);
-        // }
     }
 }

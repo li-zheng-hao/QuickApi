@@ -41,13 +41,18 @@ namespace QuickApi.HttpResponse
             }
             else
             {
-                if(context.Result is ObjectResult objectResult)
+                if (context.Result is ObjectResult objectResult)
+                {
+                    if (objectResult.Value is HttpResponseResult)
+                        return;
                     context.Result=new ObjectResult(new HttpResponseResult
                     {
                         code = 200,
                         success = true,
                         data = objectResult.Value
                     });
+                }
+                    
             }
         }
     }

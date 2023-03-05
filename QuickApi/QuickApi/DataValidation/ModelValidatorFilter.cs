@@ -12,7 +12,7 @@ namespace QuickApi.DataValidation;
 /// 请求验证错误处理
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true)]
-public class ModelValidator : ResultFilterAttribute
+public class ModelValidatorFilter : ResultFilterAttribute
 {
     public override void OnResultExecuting(ResultExecutingContext actionContext)
     {

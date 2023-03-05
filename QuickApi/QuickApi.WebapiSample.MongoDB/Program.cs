@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Driver;
+using QuickApi.DataValidation;
 using QuickApi.HttpResponse;
 using QuickApi.JsonSerialization;
 using QuickApi.JwtAuthorization;
@@ -19,6 +20,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddMvc(action =>
 {
     action.Filters.Add<ResponseResultWrapperFilter>();
+    action.Filters.Add<ModelValidatorFilter>();
     
 }).AddCustomJsonSerialization();
 
